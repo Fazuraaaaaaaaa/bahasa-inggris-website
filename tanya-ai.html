@@ -56,7 +56,7 @@
   .toggle-label { display:inline-flex; align-items:center; cursor:pointer; gap:6px; margin:0; font-weight:600; }
 
   .chat-wrapper {
-    display:flex; flex-direction:column; height:560px; background:var(--page);
+    display:flex; flex-direction:column; height:calc(100vh - 120px); max-height:560px; background:var(--page);
     border:2px solid var(--ink); border-radius:12px; box-shadow:4px 5px 0 var(--shadow); padding:16px;
   }
   .chat-box {
@@ -356,6 +356,8 @@
 </script>
 </body>
 </html>
+
+
 
 
 
