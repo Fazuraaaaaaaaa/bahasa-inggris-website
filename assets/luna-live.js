@@ -98,8 +98,10 @@
     buffer.getChannelData(0).set(data);
 
     var src = st.ctx.createBufferSource();
+    if(!st.analyzer) { st.analyzer = st.ctx.createAnalyser(); st.analyzer.fftSize = 256; st.analyzer.connect(st.ctx.destination); }
+
     src.buffer = buffer;
-    src.connect(st.ctx.destination);
+    src.connect(st.analyzer);
 
     var now = st.ctx.currentTime;
     if (st.nextTime < now) st.nextTime = now + 0.03;
@@ -125,16 +127,21 @@
     st.playTimer = setInterval(function () {
       if (!st.ctx) { clearInterval(st.playTimer); return; }
       var remaining = st.nextTime - st.ctx.currentTime;
+      if (st.analyzer && window.setAvatarLipSync) {
+        var dataArray = new Uint8Array(st.analyzer.frequencyBinCount);
+        st.analyzer.getByteFrequencyData(dataArray);
+        var sum = 0; for(var d=0; d<dataArray.length; d++) sum += dataArray[d];
+        var avg = sum / (dataArray.length * 255);
+        window.setAvatarLipSync(avg);
+      }
       if (st.turnDone && remaining <= 0.05) {
-        clearInterval(st.playTimer);
-        st.playTimer = null;
+        clearInterval(st.playTimer); st.playTimer = null; if(window.setAvatarLipSync) window.setAvatarLipSync(0);
         st.draining = false;
         st.activeSources.length = 0;
         cb.state('listening');
       } else if (remaining > 40) {
         // safety: audio berhenti mengalir
-        clearInterval(st.playTimer);
-        st.playTimer = null;
+        clearInterval(st.playTimer); st.playTimer = null; if(window.setAvatarLipSync) window.setAvatarLipSync(0);
       }
     }, 180);
   }
@@ -148,8 +155,7 @@
     st.nextTime = st.ctx ? st.ctx.currentTime : 0;
     st.draining = false;
     st.turnDone = false;
-    clearInterval(st.playTimer);
-    st.playTimer = null;
+    clearInterval(st.playTimer); st.playTimer = null; if(window.setAvatarLipSync) window.setAvatarLipSync(0);
   }
 
   /* ------------------------- MIKROFON ------------------------- */
