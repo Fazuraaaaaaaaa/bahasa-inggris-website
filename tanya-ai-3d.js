@@ -11,15 +11,26 @@
   // LunaLive akan memancarkan event volume
   let lipVolume = 0;
   
-  // Custom Hook to sync avatar state
+    // Custom Hook to sync avatar state
   window.setAvatarState = function(state) {
     avatarState = state;
   };
   
-  // Terima data volume RMS dari LunaLive
-  window.setAvatarLipSync = function(volume) {
-    lipVolume = volume; // 0.0 to 1.0 (aprox)
-  };
+  // Baca Analyser node langsung dari LunaLive pada setiap Frame (60FPS smooth lip-sync)
+  let freqData = null;
+  function getLipVolume() {
+    if (window.LunaLive && LunaLive.isSpeaking() && LunaLive.getAnalyser()) {
+       const ana = LunaLive.getAnalyser();
+       if (!freqData || freqData.length !== ana.frequencyBinCount) {
+         freqData = new Uint8Array(ana.frequencyBinCount);
+       }
+       ana.getByteFrequencyData(freqData);
+       let sum = 0;
+       for (let i = 0; i < freqData.length; i++) sum += freqData[i];
+       return (sum / (freqData.length * 255));
+    }
+    return 0;
+  }
 
   function initAvatar3D() {
     const canvas = document.getElementById('avatarCanvas');
@@ -264,7 +275,8 @@
     if (avatarState === 'speaking') {
       // Jika model sedang "Speaking", mulut digerakkan berdasarkan Audio Volume (lipVolume)
       // Ditambah random noise halus agar selalu gerak meski volume stabil
-      let targetMouthOpen = 0.1 + (lipVolume * 4.5) + (Math.sin(time * 15) * 0.1);
+      let lipVolume = getLipVolume();
+      let targetMouthOpen = 0.1 + (lipVolume * 5.0) + (Math.sin(time * 15) * 0.05);
       
       // Batasi bukaan mulut
       if (targetMouthOpen < 0.1) targetMouthOpen = 0.1;

@@ -98,7 +98,7 @@
     buffer.getChannelData(0).set(data);
 
     var src = st.ctx.createBufferSource();
-    if(!st.analyzer) { st.analyzer = st.ctx.createAnalyser(); st.analyzer.fftSize = 256; st.analyzer.connect(st.ctx.destination); }
+    if (!st.analyzer) { st.analyzer = st.ctx.createAnalyser(); st.analyzer.fftSize = 512; st.analyzer.smoothingTimeConstant = 0.65; st.analyzer.connect(st.ctx.destination); }
 
     src.buffer = buffer;
     src.connect(st.analyzer);
@@ -127,13 +127,7 @@
     st.playTimer = setInterval(function () {
       if (!st.ctx) { clearInterval(st.playTimer); return; }
       var remaining = st.nextTime - st.ctx.currentTime;
-      if (st.analyzer && window.setAvatarLipSync) {
-        var dataArray = new Uint8Array(st.analyzer.frequencyBinCount);
-        st.analyzer.getByteFrequencyData(dataArray);
-        var sum = 0; for(var d=0; d<dataArray.length; d++) sum += dataArray[d];
-        var avg = sum / (dataArray.length * 255);
-        window.setAvatarLipSync(avg);
-      }
+
       if (st.turnDone && remaining <= 0.05) {
         clearInterval(st.playTimer); st.playTimer = null; if(window.setAvatarLipSync) window.setAvatarLipSync(0);
         st.draining = false;
@@ -383,7 +377,12 @@
       st.ws.send(JSON.stringify({ clientContent: { turns: [{ role: 'user', parts: [{ text: txt }] }], turnComplete: true } }));
     },
     
-    cancel: function() { flushPlayback(); cb.state('listening'); }
+    cancel: function() { flushPlayback(); cb.state('listening'); },
+
+    // Untuk avatar: ambil AnalyserNode supaya animasi mulut bisa 60fps
+    getAnalyser: function () { return st.analyzer; },
+    isSpeaking: function () { return !!st.draining; },
+    isRunning: function () { return !!st.running; }
   };
 
 })();
