@@ -45,8 +45,8 @@
   /* ------------------------- AUDIO -> VISIME ------------------------- */
   var td = null, fd = null;
   function analyze(dt) {
-    var live = window.LunaLive && LunaLive.isSpeaking && LunaLive.isSpeaking();
-    var an = live && LunaLive.getAnalyser ? LunaLive.getAnalyser() : null;
+    var live = window.LunaLive && window.LunaLive.isSpeaking && window.LunaLive.isSpeaking();
+    var an = live && window.LunaLive.getAnalyser ? window.LunaLive.getAnalyser() : null;
 
     var rms = 0, bright = 0.5;
     if (an) {
