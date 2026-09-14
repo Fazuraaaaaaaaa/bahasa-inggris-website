@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tata Bahasa - Buku Catatan Bahasa Inggris</title>
+<meta name="description" content="Buku catatan bahasa Inggris interaktif dengan fitur AI Tutor Suara, Pelafalan 3D, Kosakata, dan Kuis.">
+<meta property="og:title" content="Buku Bahasa Inggris Interaktif">
+<meta property="og:description" content="Belajar bahasa Inggris dengan asisten AI dan mascot 3D secara interaktif.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .grammar-list{display:flex; flex-direction:column; gap:16px;}
+  .g-item{
+    background:var(--page); border:2px solid var(--ink); border-radius:10px;
+    box-shadow:3px 4px 0 var(--shadow); overflow:hidden; transition:box-shadow .15s;
+  }
+  .g-head{
+    padding:16px 20px; display:flex; justify-content:space-between; align-items:center;
+    cursor:pointer; font-weight:700; font-size:1.15rem; font-family:'Kalam',cursive;
+    background:var(--paper); user-select:none;
+  }
+  .g-head:hover{background:var(--highlight-soft);}
+  .g-head .plus{font-family:'Manrope',sans-serif; font-size:1.5rem; transition:transform .3s;}
+  .g-body{max-height:0; overflow:hidden; transition:max-height .3s ease;}
+  .g-item.open .g-head .plus{transform:rotate(45deg);}
+  .g-inner{padding:18px 20px; border-top:2px dashed var(--paper-line);}
+  .rule-box{background:var(--highlight-soft); padding:12px; border-radius:6px; margin-bottom:14px; font-weight:500;}
+  .formula{font-family:monospace; background:#fff; padding:6px; border:1px solid var(--ink); margin-top:8px; display:inline-block;}
+  .ex-line{display:flex; gap:10px; margin-bottom:8px;}
+  .ex-line.wrong{color:var(--wrong);}
+  .ex-line.correct{color:var(--correct); font-weight:700;}
+  .mark{width:20px; flex:0 0 auto; text-align:center;}
+  .tip{margin-top:14px; padding-left:14px; border-left:4px solid var(--tab-grammar); font-size:0.9rem; font-style:italic;}
+  .badge-level{
+    font-size:0.7rem; padding:2px 6px; border-radius:4px; font-family:'Manrope',sans-serif; font-weight:800;
+    text-transform:uppercase; margin-left:10px; vertical-align:middle;
+  }
+  .lvl-dasar{background:#C8E6C9; color:#2E7D32;}
+  .lvl-menengah{background:#FFF9C4; color:#F57F17;}
+  .lvl-lanjut{background:#FFCDD2; color:#C62828;}
+</style>
+<script src="assets/nav.js"></script>
+</head>
+<body>
+<div class="notebook">
+  <div class="holes">
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <app-nav active="tatabahasa"></app-nav>
+
+  <main>
+    <section>
+      <div class="section-head">
+        <h2><span class="eyebrow" style="background:var(--tab-grammar)"></span>Aturan Tata Bahasa</h2>
+        <p>Kumpulan rumus grammar penting yang sering dipakai. Klik judulnya untuk membuka penjelasan, contoh benar/salah, dan tips mudahnya.</p>
+      </div>
+      
+      <div class="chips" id="levelChips">
+        <button class="chip active" data-lvl="all">Semua Level</button>
+        <button class="chip" data-lvl="dasar">Pemula</button>
+        <button class="chip" data-lvl="menengah">Menengah</button>
+        <button class="chip" data-lvl="lanjut">Lanjut</button>
+      </div>
+
+      <div class="grammar-list" id="grammarList"></div>
+    </section>
+  </main>
+</div>
+
+<script src="assets/grammar-data.js"></script>
+<script>
+  let actLvl = 'all';
+  const listEl = document.getElementById('grammarList');
+
+  document.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(ch => ch.classList.remove('active'));
+      c.classList.add('active');
+      actLvl = c.getAttribute('data-lvl');
+      render();
+    });
+  });
+
+  function render() {
+    listEl.innerHTML = '';
+    const filtered = window.grammarData.filter(g => actLvl === 'all' || g.level === actLvl);
+    
+    filtered.forEach(g => {
+      const item = document.createElement('div');
+      item.className = 'g-item';
+      
+      let examplesHtml = g.examples.map(ex => `<div style="margin-left:30px; font-style:italic;">• ${ex}</div>`).join('');
+      
+      item.innerHTML = `
+        <div class="g-head">
+          <div>
+            ${g.title}
+            <span class="badge-level lvl-${g.level}">${g.level}</span>
+          </div>
+          <span class="plus">+</span>
+        </div>
+        <div class="g-body">
+          <div class="g-inner">
+            <div class="rule-box">
+              ${g.rule}
+              <div class="formula">${g.formula}</div>
+            </div>
+            
+            <h4 style="font-size:0.95rem; margin:10px 0;">Contoh:</h4>
+            ${examplesHtml}
+            
+            <h4 style="font-size:0.95rem; margin:16px 0 10px;">Perbandingan (Hati-hati salah!):</h4>
+            <div class="ex-line wrong"><span class="mark">✕</span> <span><strike>${g.wrong}</strike></span></div>
+            <div class="ex-line correct"><span class="mark">✓</span> <span>${g.correct}</span></div>
+            
+            <div class="tip">💡 <b>Trik:</b> ${g.tip}</div>
+          </div>
+        </div>
+      `;
+      
+      const head = item.querySelector('.g-head');
+      const body = item.querySelector('.g-body');
+      head.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        // close others
+        listEl.querySelectorAll('.g-item').forEach(other => {
+          other.classList.remove('open');
+          other.querySelector('.g-body').style.maxHeight = null;
+        });
+        if(!isOpen) {
+          item.classList.add('open');
+          body.style.maxHeight = body.scrollHeight + "px";
+        }
+      });
+      
+      listEl.appendChild(item);
+    });
+  }
+
+  render();
+</script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,456 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pelafalan & Skor Akurasi - Buku Catatan Bahasa Inggris</title>
+<meta name="description" content="Buku catatan bahasa Inggris interaktif dengan fitur AI Tutor Suara, Pelafalan 3D, Kosakata, dan Kuis.">
+<meta property="og:title" content="Buku Bahasa Inggris Interaktif">
+<meta property="og:description" content="Belajar bahasa Inggris dengan asisten AI dan mascot 3D secara interaktif.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  :root {
+    --tab-pronounce: #E67E22;
+  }
+  .tab[data-tab="pelafalan"].active {
+    background: var(--tab-pronounce);
+    border-color: var(--tab-pronounce);
+    color: #fff;
+  }
+
+  /* Canvas 3D */
+  .canvas-3d-wrap {
+    width: 100%;
+    height: 220px;
+    background: radial-gradient(circle at center, #FFFDF7 20%, #EFE8D6 100%);
+    border: 2px solid var(--ink);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 4px 5px 0 var(--shadow);
+  }
+  #threeCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+  }
+  #threeCanvas:active {
+    cursor: grabbing;
+  }
+  .hint-3d {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    background: rgba(255,255,255,0.7);
+    padding: 2px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  .practice-card {
+    background: var(--page);
+    border: 2px solid var(--ink);
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 5px 6px 0 var(--shadow);
+    text-align: center;
+    position: relative;
+  }
+  .target-word {
+    font-family: 'Kalam', cursive;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--ink);
+    margin: 8px 0;
+  }
+  .target-ipa {
+    font-size: 1.1rem;
+    color: var(--ink-soft);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .target-meaning {
+    font-weight: 600;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
+
+  /* Score meter */
+  .score-container {
+    margin: 24px auto;
+    max-width: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 6px solid var(--paper-line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Kalam', cursive;
+    font-size: 2.3rem;
+    font-weight: 700;
+    transition: all .4s ease;
+    background: #fff;
+  }
+  .score-circle.pass {
+    border-color: var(--correct);
+    color: var(--correct);
+    background: var(--correct-bg);
+  }
+  .score-circle.fail {
+    border-color: var(--wrong);
+    color: var(--wrong);
+    background: var(--wrong-bg);
+  }
+  .score-label {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+  }
+
+  .user-said-box {
+    margin: 16px 0;
+    padding: 12px;
+    background: var(--paper);
+    border-radius: 8px;
+    border: 1px dashed var(--ink);
+    font-size: 0.95rem;
+  }
+  .feedback-msg {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-top: 10px;
+    min-height: 24px;
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .btn-mic-pronounce {
+    background: var(--tab-pronounce);
+    color: #fff;
+    padding: 12px 24px;
+    font-size: 1.05rem;
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 800;
+    box-shadow: 3px 3px 0 var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-mic-pronounce.listening {
+    background: #e74c3c;
+    animation: pulse 1s infinite alternate;
+  }
+
+  .item-selector {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 18px;
+  }
+  .item-thumb {
+    padding: 8px 14px;
+    border: 2px solid var(--ink);
+    border-radius: 20px;
+    background: var(--page);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .item-thumb.active {
+    background: var(--ink);
+    color: #fff;
+  }
+</style>
+<script src="assets/nav.js"></script>
+</head>
+<body>
+<div class="notebook">
+  <div class="holes">
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <app-nav active="pelafalan"></app-nav>
+
+  <main>
+    <section>
+      <div class="section-head">
+        <h2><span class="eyebrow" style="background:var(--tab-pronounce)"></span>Latihan Pelafalan (Pronunciation)</h2>
+        <p>Uji pengucapan bahasa Inggrismu dengan akurasi persentase. Dengarkan contoh native speaker, lalu tirukan lewat mikrofon!</p>
+      </div>
+
+      <!-- 3D Viewport -->
+      <div class="canvas-3d-wrap">
+        <canvas id="threeCanvas"></canvas>
+        <span class="hint-3d">🖱️ Geser mouse / sentuh untuk memutar objek 3D</span>
+      </div>
+
+      <!-- Kategori / Level Filter -->
+      <div class="chips">
+        <button class="chip active" onclick="filterLevel('all')">Semua</button>
+        <button class="chip" onclick="filterLevel('mudah')">Kata Dasar</button>
+        <button class="chip" onclick="filterLevel('menengah')">Menengah</button>
+        <button class="chip" onclick="filterLevel('sulit')">Tantangan Sulit</button>
+        <button class="chip" onclick="filterLevel('kalimat')">Kalimat Utuh</button>
+      </div>
+
+      <!-- Item Horizontal Selector -->
+      <div class="item-selector" id="itemList"></div>
+
+      <!-- Main Practice Card -->
+      <div class="practice-card">
+        <div class="target-word" id="targetWord">Hello</div>
+        <div class="target-ipa" id="targetIpa">/həˈloʊ/</div>
+        <div class="target-meaning" id="targetMeaning">Halo</div>
+        
+        <p style="font-size:0.85rem; color:var(--ink-soft); margin-top:8px; font-style:italic;" id="targetTip">
+          💡 Tips: Bunyikan 'h' dengan jelas, jangan jadi 'ello'.
+        </p>
+
+        <div class="score-container">
+          <div class="score-circle" id="scoreCircle">--%</div>
+          <span class="score-label" id="scoreLabel">Siap Menguji</span>
+        </div>
+
+        <div class="user-said-box">
+          <b>Suara yang terdeteksi:</b>
+          <div id="userSaidText" style="color:var(--ink-soft); margin-top:4px;">(Tekan tombol 'Bicara Sekarang' di bawah)</div>
+        </div>
+
+        <div class="feedback-msg" id="feedbackMsg"></div>
+
+        <div class="action-buttons">
+          <button class="btn btn-ghost" id="btnListen" title="Dengarkan pengucapan yang benar">
+            🔊 Dengarkan Native
+          </button>
+          <button class="btn-mic-pronounce" id="btnRecord">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+              <line x1="8" y1="23" x2="16" y2="23"></line>
+            </svg>
+            <span id="btnRecordText">Bicara Sekarang 🎙️</span>
+          </button>
+          <button class="btn btn-primary" id="btnNext">
+            Kata Berikutnya →
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Three.js (Local) -->
+<script src="assets/three.min.js"></script>
+<script src="assets/pronounce-data.js"></script>
+<script src="pelafalan_3d.js"></script>
+<script>
+  // ================= PRONUNCIATION PRACTICE LOGIC =================
+  let currentList = window.pronounceData;
+  let currentIndex = 0;
+  let isListening = false;
+  let recognizer = null;
+
+  const targetWordEl = document.getElementById('targetWord');
+  const targetIpaEl = document.getElementById('targetIpa');
+  const targetMeaningEl = document.getElementById('targetMeaning');
+  const targetTipEl = document.getElementById('targetTip');
+  const scoreCircle = document.getElementById('scoreCircle');
+  const scoreLabel = document.getElementById('scoreLabel');
+  const userSaidText = document.getElementById('userSaidText');
+  const feedbackMsg = document.getElementById('feedbackMsg');
+  const btnListen = document.getElementById('btnListen');
+  const btnRecord = document.getElementById('btnRecord');
+  const btnRecordText = document.getElementById('btnRecordText');
+  const btnNext = document.getElementById('btnNext');
+  const itemList = document.getElementById('itemList');
+
+  // Levenshtein Distance for Similarity / Scoring
+  function calculateSimilarity(str1, str2) {
+    const s1 = str1.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+    const s2 = str2.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+    if(s1 === s2) return 100;
+    if(!s1.length || !s2.length) return 0;
+
+    const track = Array(s2.length + 1).fill(null).map(() =>
+      Array(s1.length + 1).fill(null));
+    for (let i = 0; i <= s1.length; i += 1) track[0][i] = i;
+    for (let j = 0; j <= s2.length; j += 1) track[j][0] = j;
+    for (let j = 1; j <= s2.length; j += 1) {
+      for (let i = 1; i <= s1.length; i += 1) {
+        const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1;
+        track[j][i] = Math.min(
+          track[j][i - 1] + 1,
+          track[j - 1][i] + 1,
+          track[j - 1][i - 1] + indicator
+        );
+      }
+    }
+    const distance = track[s2.length][s1.length];
+    const maxLen = Math.max(s1.length, s2.length);
+    const score = Math.max(0, Math.round((1 - distance / maxLen) * 100));
+    return score;
+  }
+
+  function renderThumbs() {
+    itemList.innerHTML = '';
+    currentList.forEach((item, idx) => {
+      const b = document.createElement('button');
+      b.className = 'item-thumb' + (idx === currentIndex ? ' active' : '');
+      b.textContent = item.t;
+      b.onclick = () => {
+        currentIndex = idx;
+        loadItem();
+      };
+      itemList.appendChild(b);
+    });
+  }
+
+  function filterLevel(lvl) {
+    document.querySelectorAll('.chips .chip').forEach(c => c.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    if(lvl === 'all') currentList = window.pronounceData;
+    else currentList = window.pronounceData.filter(x => x.lvl === lvl);
+
+    currentIndex = 0;
+    renderThumbs();
+    loadItem();
+  }
+
+  function loadItem() {
+    const item = currentList[currentIndex];
+    if(!item) return;
+
+    targetWordEl.textContent = item.t;
+    targetIpaEl.textContent = item.ipa;
+    targetMeaningEl.textContent = item.id;
+    targetTipEl.textContent = "💡 Tips: " + item.tip;
+
+    scoreCircle.textContent = "--%";
+    scoreCircle.className = "score-circle";
+    scoreLabel.textContent = "Siap Menguji";
+    userSaidText.textContent = "(Tekan tombol 'Bicara Sekarang' di bawah)";
+    feedbackMsg.textContent = "";
+
+    // update active thumb
+    document.querySelectorAll('.item-thumb').forEach((t, i) => {
+      t.classList.toggle('active', i === currentIndex);
+    });
+  }
+
+  // Audio Native
+  btnListen.addEventListener('click', () => {
+    const item = currentList[currentIndex];
+    const u = new SpeechSynthesisUtterance(item.t);
+    u.lang = 'en-US';
+    u.rate = 0.85; // Slightly slower for clarity
+    speechSynthesis.speak(u);
+  });
+
+  // Speech Recognition (Input Mic)
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(SpeechRec) {
+    recognizer = new SpeechRec();
+    recognizer.lang = 'en-US';
+    recognizer.continuous = false;
+    recognizer.interimResults = false;
+
+    recognizer.onstart = () => {
+      isListening = true;
+      btnRecord.classList.add('listening');
+      btnRecordText.textContent = 'Mendengarkan... 🎙️';
+      userSaidText.textContent = 'Bicaralah sekarang...';
+    };
+
+    recognizer.onresult = (e) => {
+      const userText = e.results[0][0].transcript;
+      userSaidText.innerHTML = `<i>"${userText}"</i>`;
+
+      const target = currentList[currentIndex].t;
+      const score = calculateSimilarity(userText, target);
+
+      scoreCircle.textContent = score + "%";
+      if(score >= 80) {
+        scoreCircle.className = "score-circle pass";
+        scoreLabel.textContent = "Sempurna! 🌟";
+        feedbackMsg.innerHTML = "Luar biasa! Pelafalanmu sangat tepat dan jelas.";
+        window.trigger3DPulse && window.trigger3DPulse();
+      } else if(score >= 50) {
+        scoreCircle.className = "score-circle pass";
+        scoreLabel.textContent = "Bagus 👍";
+        feedbackMsg.innerHTML = "Cukup bagus! Dengarkan lagi contoh native agar lebih fasih.";
+      } else {
+        scoreCircle.className = "score-circle fail";
+        scoreLabel.textContent = "Coba Lagi 🔁";
+        feedbackMsg.innerHTML = "Belum tepat. Coba perhatikan tips pelafalan di atas ya!";
+      }
+    };
+
+    recognizer.onerror = (e) => {
+      btnRecord.classList.remove('listening');
+      btnRecordText.textContent = 'Bicara Sekarang 🎙️';
+      userSaidText.textContent = 'Gagal menangkap suara (' + e.error + '). Pastikan izin mic aktif.';
+      isListening = false;
+    };
+
+    recognizer.onend = () => {
+      btnRecord.classList.remove('listening');
+      btnRecordText.textContent = 'Bicara Sekarang 🎙️';
+      isListening = false;
+    };
+  }
+
+  btnRecord.addEventListener('click', () => {
+    if(!recognizer) {
+      alert("Browser Anda belum mendukung input mikrofon Web Speech API. Buka di Google Chrome atau Microsoft Edge melalui http://localhost:8000!");
+      return;
+    }
+    if(isListening) {
+      recognizer.stop();
+    } else {
+      recognizer.start();
+    }
+  });
+
+  btnNext.addEventListener('click', () => {
+    if(currentIndex < currentList.length - 1) {
+      currentIndex++;
+    } else {
+      currentIndex = 0;
+    }
+    loadItem();
+  });
+
+  // Init
+  renderThumbs();
+  loadItem();
+</script>
+</body>
+</html>
+
+
+
+

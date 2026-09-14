@@ -1,0 +1,198 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kosakata - Buku Catatan Bahasa Inggris</title>
+<meta name="description" content="Buku catatan bahasa Inggris interaktif dengan fitur AI Tutor Suara, Pelafalan 3D, Kosakata, dan Kuis.">
+<meta property="og:title" content="Buku Bahasa Inggris Interaktif">
+<meta property="og:description" content="Belajar bahasa Inggris dengan asisten AI dan mascot 3D secara interaktif.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .search-box{
+    width:100%; max-width:360px; padding:10px 14px; border:2px solid var(--ink);
+    border-radius:8px; font-size:0.95rem; margin-bottom:20px; background:var(--page);
+  }
+  .search-box:focus{outline:none; border-color:var(--tab-vocab);}
+  .controls{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;}
+  .card-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(210px,1fr)); gap:18px;}
+  .flashcard{perspective:1000px; height:180px; cursor:pointer;}
+  .flashcard-inner{
+    position:relative; width:100%; height:100%; transition:transform .5s;
+    transform-style:preserve-3d;
+  }
+  .flashcard.flipped .flashcard-inner{transform:rotateY(180deg);}
+  .flashcard-face{
+    position:absolute; inset:0; border-radius:8px; border:2px solid var(--ink);
+    backface-visibility:hidden; padding:14px; display:flex; flex-direction:column;
+    justify-content:space-between; background:var(--page);
+    box-shadow:3px 3px 0 var(--shadow);
+  }
+  .flashcard-face.front{border-top:8px solid var(--tab-vocab);}
+  .flashcard-face.back{
+    transform:rotateY(180deg); background:var(--highlight-soft);
+    border-top:8px solid var(--tab-vocab);
+  }
+  .fc-top{display:flex; justify-content:space-between; align-items:center;}
+  .fc-word{font-family:'Kalam',cursive; font-size:1.45rem; font-weight:700;}
+  .fc-say{font-size:0.82rem; color:var(--ink-soft);}
+  .fc-meaning{font-weight:800; font-size:1.15rem;}
+  .fc-example{font-size:0.85rem; color:var(--ink-soft); font-style:italic;}
+  .fc-btn-sound{
+    background:none; border:none; cursor:pointer; padding:4px; border-radius:4px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .fc-btn-sound:hover{background:rgba(0,0,0,0.05);}
+  .fc-check{
+    display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:700;
+    cursor:pointer; user-select:none; margin-top:4px;
+  }
+  .fc-check input{cursor:pointer;}
+  .learned-tag{
+    position:absolute; top:8px; right:8px; background:var(--correct); color:#fff;
+    font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:3px;
+  }
+</style>
+<script src="assets/nav.js"></script>
+</head>
+<body>
+<div class="notebook">
+  <div class="holes">
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <app-nav active="kosakata"></app-nav>
+
+  <main>
+    <section>
+      <div class="section-head">
+        <h2><span class="eyebrow" style="background:var(--tab-vocab)"></span>Catatan Kosakata</h2>
+        <p>Pelajari lebih dari 100+ kosakata penting. Klik kartu untuk melihat artinya, atau klik ikon audio untuk mendengarkan pelafalan.</p>
+      </div>
+
+      <div class="controls">
+        <input type="text" id="searchVocab" class="search-box" placeholder="Cari kata atau arti...">
+        <div id="vocabCount" style="font-size:0.9rem; font-weight:700; color:var(--ink-soft);"></div>
+      </div>
+
+      <div class="chips" id="categoryChips"></div>
+
+      <div class="card-grid" id="cardGrid"></div>
+    </section>
+  </main>
+
+  <footer>Dibuat untuk menemani belajar bahasa Inggrismu, sedikit demi sedikit setiap hari.</footer>
+</div>
+
+<script src="assets/vocab-data.js"></script>
+<script>
+  let activeCat = 'all';
+  let searchQuery = '';
+  let learnedSet = new Set(JSON.parse(localStorage.getItem('learnedVocab') || '[]'));
+
+  const chipRow = document.getElementById('categoryChips');
+  const grid = document.getElementById('cardGrid');
+  const countEl = document.getElementById('vocabCount');
+  const searchInput = document.getElementById('searchVocab');
+
+  // Render chips
+  window.vocabCategories.forEach(c => {
+    const chip = document.createElement('button');
+    chip.className = 'chip' + (c.id === 'all' ? ' active' : '');
+    chip.textContent = c.label;
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(ch => ch.classList.remove('active'));
+      chip.classList.add('active');
+      activeCat = c.id;
+      renderCards();
+    });
+    chipRow.appendChild(chip);
+  });
+
+  searchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value.toLowerCase().trim();
+    renderCards();
+  });
+
+  function speakWord(e, word) {
+    e.stopPropagation();
+    const u = new SpeechSynthesisUtterance(word);
+    u.lang = 'en-US';
+    speechSynthesis.speak(u);
+  }
+
+  function toggleLearned(e, word) {
+    e.stopPropagation();
+    if(learnedSet.has(word)) {
+      learnedSet.delete(word);
+    } else {
+      learnedSet.add(word);
+    }
+    localStorage.setItem('learnedVocab', JSON.stringify(Array.from(learnedSet)));
+    renderCards();
+  }
+
+  function renderCards() {
+    grid.innerHTML = '';
+    const filtered = window.vocabData.filter(v => {
+      const matchCat = (activeCat === 'all' || v.cat === activeCat);
+      const matchSearch = !searchQuery || 
+        v.word.toLowerCase().includes(searchQuery) || 
+        v.meaning.toLowerCase().includes(searchQuery) ||
+        v.example.toLowerCase().includes(searchQuery);
+      return matchCat && matchSearch;
+    });
+
+    countEl.textContent = `Menampilkan ${filtered.length} kata (${learnedSet.size} hafal)`;
+
+    if(filtered.length === 0) {
+      grid.innerHTML = '<div style="grid-column:1/-1; padding:30px; text-align:center; color:var(--ink-soft);">Kata tidak ditemukan. Coba cari kata lain ya! 🔍</div>';
+      return;
+    }
+
+    filtered.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'flashcard';
+      const isLearned = learnedSet.has(item.word);
+
+      card.innerHTML = `
+        <div class="flashcard-inner">
+          <div class="flashcard-face front">
+            ${isLearned ? '<span class="learned-tag">Hafal ✓</span>' : ''}
+            <div class="fc-top">
+              <span class="fc-word">${item.word}</span>
+              <button class="fc-btn-sound" onclick="speakWord(event, '${item.word}')" title="Dengarkan pengucapan">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+              </button>
+            </div>
+            <div class="fc-say">${item.say}</div>
+            <div style="font-size:0.75rem; color:var(--ink-soft); align-self:flex-end;">Klik kartu untuk arti ↻</div>
+          </div>
+          <div class="flashcard-face back">
+            <div class="fc-meaning">${item.meaning}</div>
+            <div class="fc-example">"${item.example}"</div>
+            <label class="fc-check" onclick="event.stopPropagation()">
+              <input type="checkbox" ${isLearned ? 'checked' : ''} onchange="toggleLearned(event, '${item.word}')">
+              <span>Tandai sudah hafal</span>
+            </label>
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        card.classList.toggle('flipped');
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  renderCards();
+</script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,165 @@
+﻿:root{
+  --paper:#F6F1E4;
+  --page:#FFFDF7;
+  --paper-line:#E4D9BC;
+  --ink:#26314A;
+  --ink-soft:#5B6478;
+  --highlight:#F5C84C;
+  --highlight-soft:#FBEAB8;
+  --correct:#3F7859;
+  --correct-bg:#E3F0E7;
+  --wrong:#C13B3B;
+  --wrong-bg:#F8E4E1;
+  --tab-home:#5B8266;
+  --tab-vocab:#3E6E96;
+  --tab-grammar:#B9862E;
+  --tab-quiz:#7C5CA6;
+  --tab-ai:#D35400;
+  --shadow:rgba(38,49,74,0.16);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background-color:var(--paper);
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,0.7), transparent 45%),
+    radial-gradient(circle at 88% 72%, rgba(38,49,74,0.05), transparent 40%);
+  color:var(--ink);
+  font-family:'Manrope', sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.hand{font-family:'Kalam', cursive; font-weight:700; margin:0;}
+h4{margin:0 0 8px 0;}
+p{line-height:1.65;}
+a{color:inherit;}
+button,textarea,input,select{font-family:inherit;}
+ul{margin:0; padding-left:20px;}
+
+.notebook{
+  max-width:980px;
+  margin:0 auto;
+  background:var(--page);
+  min-height:100vh;
+  position:relative;
+  box-shadow:0 0 0 1px rgba(38,49,74,0.06), 0 18px 50px -28px rgba(38,49,74,0.4);
+  overflow:hidden;
+}
+.holes{
+  position:absolute; left:14px; top:0; bottom:0; width:14px;
+  display:flex; flex-direction:column; gap:46px; padding-top:130px; z-index:3;
+  pointer-events:none;
+}
+.holes span{
+  width:14px;height:14px;border-radius:50%;
+  background:var(--paper);
+  box-shadow:inset 0 0 0 1px rgba(38,49,74,0.14), 0 1px 0 rgba(255,255,255,0.8);
+}
+@media (max-width:720px){ .holes{display:none;} }
+
+app-nav{display:block; }
+nav{
+  
+  background:var(--page);
+  border-bottom:2px solid var(--ink);
+  padding:14px 20px 0 20px;
+  display:flex; gap:8px; overflow-x:auto; scrollbar-width:none;
+  box-shadow:0 6px 18px -14px rgba(38,49,74,0.5);
+}
+nav::-webkit-scrollbar{display:none;}
+.tab{
+  flex:0 0 auto; padding:10px 15px;
+  border:2px solid var(--ink); border-bottom:none;
+  border-radius:10px 10px 0 0; background:var(--paper);
+  font-weight:700; font-size:0.9rem; text-decoration:none; color:var(--ink);
+  position:relative; top:2px; white-space:nowrap;
+  transition:transform .15s ease, background .15s ease;
+}
+.tab:hover{transform:translateY(-2px);}
+.tab.active{color:#fff;}
+.tab[data-tab="beranda"].active{background:var(--tab-home); border-color:var(--tab-home);}
+.tab[data-tab="kosakata"].active{background:var(--tab-vocab); border-color:var(--tab-vocab);}
+.tab[data-tab="tatabahasa"].active{background:var(--tab-grammar); border-color:var(--tab-grammar);}
+.tab[data-tab="kuis"].active{background:var(--tab-quiz); border-color:var(--tab-quiz);}
+.tab[data-tab="ai"].active{background:var(--tab-ai); border-color:var(--tab-ai);}
+
+main{padding-left:20px; position:relative; z-index:2;}
+@media (min-width:721px){ main{padding-left:64px;} }
+section{padding:52px 24px 52px 6px; border-bottom:2px dashed var(--paper-line);}
+section:last-child{border-bottom:none;}
+.section-head{margin-bottom:26px;}
+.section-head h2{font-size:clamp(1.6rem,4vw,2.15rem);}
+.section-head p{color:var(--ink-soft); margin-top:8px; max-width:60ch;}
+.eyebrow{
+  display:inline-block; width:10px; height:10px; border-radius:50%;
+  margin-right:8px; vertical-align:middle;
+}
+
+.btn{
+  display:inline-block; padding:12px 22px; border-radius:8px;
+  border:2px solid var(--ink); font-weight:800; cursor:pointer;
+  text-decoration:none; transform:rotate(-1deg);
+  box-shadow:3px 3px 0 var(--shadow);
+  transition:transform .15s ease, box-shadow .15s ease;
+  background:var(--page); color:var(--ink); font-size:0.95rem;
+}
+.btn:hover{transform:rotate(0deg) translateY(-2px); box-shadow:4px 5px 0 var(--shadow);}
+.btn:active{transform:translateY(1px); box-shadow:2px 2px 0 var(--shadow);}
+.btn-primary{background:var(--highlight); color:var(--ink);}
+.btn-ai{background:var(--tab-ai); color:#fff;}
+.btn-ghost{background:var(--page);}
+.btn-sm{padding:8px 14px; font-size:0.84rem;}
+.btn[disabled]{opacity:.55; cursor:not-allowed; transform:none;}
+
+.chips{display:flex; gap:9px; flex-wrap:wrap; margin-bottom:22px;}
+.chip{
+  padding:7px 13px; border-radius:20px; border:2px solid var(--ink);
+  background:var(--page); font-weight:700; font-size:0.84rem; cursor:pointer;
+  transition:transform .12s ease;
+}
+.chip:hover{transform:translateY(-1px);}
+.chip.active{background:var(--ink); color:var(--page);}
+
+.feature-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:18px;}
+.feature-card{
+  display:flex; flex-direction:column; text-decoration:none; background:var(--page);
+  border:2px solid var(--ink); border-radius:10px; padding:20px;
+  box-shadow:4px 5px 0 var(--shadow); position:relative;
+  transition:transform .18s ease, box-shadow .18s ease; height:100%;
+}
+.feature-card:hover{transform:translate(-2px,-3px) rotate(-.6deg); box-shadow:7px 9px 0 var(--shadow);}
+.feature-card .ico{font-size:1.9rem; line-height:1;}
+.feature-card h3{font-size:1.45rem; margin:10px 0 6px;}
+.feature-card p{color:var(--ink-soft); font-size:0.9rem; margin:0; flex-grow:1;}
+.feature-card .go{margin-top:14px; font-weight:800; font-size:0.85rem; display:inline-block; align-self:flex-start;}
+.fc-vocab{border-top:9px solid var(--tab-vocab);}
+.fc-grammar{border-top:9px solid var(--tab-grammar);}
+.fc-quiz{border-top:9px solid var(--tab-quiz);}
+.fc-ai{border-top:9px solid var(--tab-ai);}
+
+.stat-row{display:flex; gap:14px; flex-wrap:wrap; margin-top:34px;}
+.stat{
+  flex:1 1 130px; background:var(--page); border:2px dashed var(--ink);
+  border-radius:10px; padding:14px 16px; text-align:center;
+}
+.stat b{display:block; font-family:'Kalam',cursive; font-size:1.7rem;}
+.stat span{font-size:0.8rem; color:var(--ink-soft);}
+
+.reveal{opacity:0; transform:translateY(16px); transition:opacity .5s ease, transform .5s ease;}
+.reveal.in{opacity:1; transform:none;}
+
+footer{
+  text-align:center; padding:28px 20px 44px;
+  color:var(--ink-soft); font-size:0.85rem; position:relative; z-index:2;
+}
+
+/* Mobile Navigation Hint */
+@media (max-width:720px){
+  app-nav::after{
+    content:''; position:absolute; right:0; top:0; bottom:0; width:30px;
+    background:linear-gradient(to right, transparent, var(--page)); pointer-events:none;
+  }
+  .tab{padding:8px 12px; font-size:0.85rem;}
+}
+
