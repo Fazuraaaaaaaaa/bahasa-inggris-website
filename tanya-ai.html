@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Tanya AI - Buku Catatan Bahasa Inggris</title>
 <meta name="description" content="Buku catatan bahasa Inggris interaktif dengan fitur AI Tutor Suara, Pelafalan 3D, Kosakata, dan Kuis.">
 <meta property="og:title" content="Buku Bahasa Inggris Interaktif">
@@ -56,58 +56,72 @@
   .toggle-label { display:inline-flex; align-items:center; cursor:pointer; gap:6px; margin:0; font-weight:600; }
 
   .chat-wrapper {
-    display:flex; flex-direction:column; height:calc(100vh - 120px); max-height:560px; background:var(--page);
+    display:flex; flex-direction:column; height:calc(100vh - 140px); max-height:600px; min-height:380px; background:var(--page);
     border:2px solid var(--ink); border-radius:12px; box-shadow:4px 5px 0 var(--shadow); padding:16px;
   }
   .chat-box {
     flex:1; overflow-y:auto; padding:10px 4px; display:flex; flex-direction:column; gap:14px; scroll-behavior:smooth;
   }
   .msg {
-    padding:12px 16px; border-radius:12px; max-width:82%; line-height:1.6;
-    font-size:0.95rem; word-wrap:break-word; animation:fadeInMsg .25s ease forwards;
+    padding:12px 16px; border-radius:12px; max-width:85%; line-height:1.6;
+    font-size:0.95rem; overflow-wrap:anywhere; position:relative;
   }
-  @keyframes fadeInMsg { from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
-  .user-msg {
-    align-self:flex-end; background:var(--highlight-soft); border:2px solid var(--ink);
-    border-bottom-right-radius:2px; box-shadow:2px 3px 0 var(--shadow);
-  }
-  .ai-msg {
-    align-self:flex-start; background:#fff; border:2px solid var(--ink);
-    border-bottom-left-radius:2px; box-shadow:2px 3px 0 var(--shadow);
-  }
-  .ai-msg-actions { display:flex; gap:8px; margin-top:8px; }
+  .user-msg { align-self:flex-end; background:#26314A; color:#FFFDF7; border-bottom-right-radius:2px; }
+  .ai-msg { align-self:flex-start; background:var(--paper); border:1.5px solid var(--ink); border-bottom-left-radius:2px; }
+  .ai-msg-actions { margin-top:8px; display:flex; gap:8px; }
   .btn-msg-speak {
-    background:var(--paper); border:1px solid var(--ink); border-radius:4px; cursor:pointer;
-    padding:3px 8px; font-size:0.75rem; font-weight:700;
+    background:#fff; border:1px solid var(--ink); border-radius:4px; cursor:pointer;
+    padding:4px 9px; font-size:0.75rem; font-weight:700;
   }
   .btn-msg-speak:hover { background:var(--highlight-soft); }
 
   .voice-action-bar { margin-top:12px; padding-top:12px; border-top:2px solid var(--paper-line); display:flex; flex-direction:column; gap:10px; }
+
+  .btn-call-mode {
+    background:#27AE60; color:#fff; border:2px solid var(--ink); border-radius:10px;
+    padding:14px 18px; font-weight:800; font-size:1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    box-shadow:3px 4px 0 var(--shadow); transition:transform .15s ease, box-shadow .15s ease, background .2s;
+    min-height:52px;
+  }
+  .btn-call-mode:hover { transform:translateY(-2px); box-shadow:4px 6px 0 var(--shadow); }
+  .btn-call-mode.in-call { background:#C0392B; animation:pulseCallBtn 1.6s infinite; }
+  @keyframes pulseCallBtn { 0%{box-shadow:0 0 0 0 rgba(192,57,43,.55);} 70%{box-shadow:0 0 0 14px rgba(192,57,43,0);} 100%{box-shadow:0 0 0 0 rgba(192,57,43,0);} }
+
   .voice-live-banner {
-    display:none; align-items:center; justify-content:space-between; background:#FFF4E5;
-    border:1.5px solid var(--tab-ai); border-radius:8px; padding:8px 14px; font-size:0.88rem;
+    display:none; align-items:center; justify-content:space-between; gap:10px; background:#FFF4E5;
+    border:1.5px solid var(--tab-ai); border-radius:8px; padding:10px 14px; font-size:0.88rem; font-weight:700;
   }
   .voice-live-banner.on { display:flex; }
-  .voice-wave-anim { display:flex; align-items:center; gap:3px; height:18px; }
-  .wave-bar { width:3px; height:100%; background:var(--tab-ai); border-radius:2px; animation:wave 1s infinite ease-in-out; }
+  .voice-live-banner > span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .voice-wave-anim { display:flex; align-items:center; gap:4px; height:20px; flex:0 0 auto; }
+  .wave-bar { width:4px; height:100%; background:var(--tab-ai); border-radius:2px; animation:wave .8s infinite ease-in-out; }
   .wave-bar:nth-child(2){animation-delay:.15s;} .wave-bar:nth-child(3){animation-delay:.3s;} .wave-bar:nth-child(4){animation-delay:.45s;}
-  @keyframes wave { 0%,100%{height:4px;} 50%{height:18px;} }
+  @keyframes wave { 0%,100%{height:4px;} 50%{height:20px;} }
 
   .input-row { display:flex; gap:10px; align-items:stretch; flex-wrap:wrap; }
   #chatInput {
-    flex:1 1 200px; padding:12px 14px; border:2px solid var(--ink); border-radius:8px;
-    font-size:0.95rem; resize:none; height:52px; background:#fff;
+    flex:1 1 180px; padding:12px 14px; border:2px solid var(--ink); border-radius:8px;
+    font-size:16px; resize:none; height:52px; background:#fff;
   }
   #chatInput:focus { outline:none; border-color:var(--tab-ai); }
   .btn-live-voice {
     background:var(--tab-ai); color:#fff; border:2px solid var(--ink); border-radius:8px;
     padding:0 16px; font-weight:800; font-size:0.9rem; cursor:pointer; white-space:nowrap;
     box-shadow:3px 3px 0 var(--shadow); display:flex; align-items:center; gap:8px; transition:all .15s ease;
+    min-height:52px;
   }
   .btn-live-voice:hover { transform:translateY(-2px); }
   .btn-live-voice.active { background:#E74C3C; animation:pulseBtn 1s infinite alternate; }
   @keyframes pulseBtn { from{transform:scale(1); box-shadow:0 0 0 0 rgba(231,76,60,.4);} to{transform:scale(1.04); box-shadow:0 0 0 8px rgba(231,76,60,0);} }
-  .btn-send { background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:8px; padding:0 16px; font-weight:700; cursor:pointer; }
+  .btn-send { background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:8px; padding:0 16px; font-weight:700; cursor:pointer; min-height:52px; }
+
+  @media (max-width:560px){
+    .chat-wrapper { padding:12px; }
+    .msg { max-width:92%; font-size:0.92rem; }
+    .btn-call-mode { font-size:0.94rem; padding:12px 14px; }
+    .btn-live-voice, .btn-send { min-height:48px; }
+  }
 </style>
 <script src="assets/nav.js"></script>
 </head>
@@ -122,11 +136,10 @@
     <section>
       <div class="section-head">
         <h2><span class="eyebrow" style="background:var(--tab-ai)"></span>Ngobrol Suara dengan Luna</h2>
-        <p>Tekan tombol mic, bicara, dan Luna langsung menjawab dengan suara - seperti video call nyata. Kamu tidak perlu mengetik apa pun.</p>
+        <p>Tekan <b>Mulai Panggilan Suara</b> lalu ngobrol bebas. Luna mendengarkan, menjawab dengan suara, lalu otomatis mendengarkan lagi - tanpa klik, tanpa mengetik.</p>
       </div>
 
       <div class="ai-container">
-        <!-- KIRI: AVATAR 3D -->
         <div class="ai-avatar-card">
           <div class="avatar-canvas-wrap">
             <canvas id="avatarCanvas"></canvas>
@@ -144,12 +157,13 @@
             </select>
 
             <div class="row-inline">
-              <span style="font-weight:700;">Jawab dengan suara</span>
-              <label class="toggle-label">
-                <input type="checkbox" id="autoVoiceToggle" checked>
-                <span>Otomatis</span>
-              </label>
+              <span style="font-weight:700;">Bahasa Mic</span>
+              <select id="micLangSelect" class="voice-select" style="width:auto; margin-left:8px;">
+                <option value="en-US">English</option>
+                <option value="id-ID">Indonesia</option>
+              </select>
             </div>
+
             <div class="row-inline">
               <span style="font-weight:700;">Balas dalam</span>
               <label class="toggle-label">
@@ -160,16 +174,12 @@
           </div>
         </div>
 
-        <!-- KANAN: CHAT -->
         <div class="chat-wrapper">
-          <div class="chat-box" id="chatBox">
-            <div class="msg ai-msg">
-              Hai! Aku Luna, teman ngobrol bahasa Inggrismu. Tekan <b>"Bicara"</b> lalu langsung cerita atau tanya apa aja ya - aku jawab pakai suara.<br><br>
-              <i>Try it: "How do I order coffee in English?"</i>
-            </div>
-          </div>
+          <div class="chat-box" id="chatBox"></div>
 
           <div class="voice-action-bar">
+            <button id="btnCallMode" class="btn-call-mode"><span>📞 Mulai Panggilan Suara (Hands-Free)</span></button>
+
             <div class="voice-live-banner" id="voiceLiveBanner">
               <span id="liveStatusText">Mendengarkan...</span>
               <div class="voice-wave-anim">
@@ -178,7 +188,7 @@
             </div>
 
             <div class="input-row">
-              <button class="btn-live-voice" id="btnLiveVoice" title="Bicara langsung tanpa mengetik">
+              <button class="btn-live-voice" id="btnLiveVoice" title="Kirim satu pertanyaan pakai suara">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                   <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -187,11 +197,11 @@
                 </svg>
                 <span id="liveBtnText">Bicara</span>
               </button>
-              <textarea id="chatInput" placeholder="Ketik kalau mau... atau tekan Bicara"></textarea>
+              <textarea id="chatInput" placeholder="Ketik kalau mau... atau tekan Mulai Panggilan Suara"></textarea>
               <button class="btn-send" id="btnSend">Kirim</button>
             </div>
             <p style="margin:2px 0 0; font-size:0.75rem; color:var(--ink-soft);">
-              <span id="modeHint">Sip: klik mic, bicara, lepas, dan Luna langsung menjawab dengan suara.</span>
+              <span id="modeHint">Mode Hands-Free: sekali klik, percakapan berlanjut otomatis sampai kamu akhiri panggilan.</span>
             </p>
           </div>
         </div>
@@ -203,161 +213,262 @@
 <script src="assets/three.min.js"></script>
 <script src="tanya-ai-3d.js"></script>
 <script>
-  // ================= TTS & VOICES =================
-  const voiceSelect = document.getElementById('voiceSelect');
+  const $ = (id) => document.getElementById(id);
+
+  // ================= STATE =================
   let chosenVoice = null;
+  let isAiSpeaking = false;
+  let callMode = false;   // hands-free voice-to-voice loop
+  let liveOn = false;
+  let resumeTimer = null;
+  let lastSpeechEnd = 0;
+
+  // ================= TTS =================
+  const voiceSelect = $('voiceSelect');
   function loadVoices() {
-    if(!('speechSynthesis' in window)) return;
+    if (!('speechSynthesis' in window)) return;
     const voices = window.speechSynthesis.getVoices();
-    if(!voices.length) return;
+    if (!voices.length) return;
     voiceSelect.innerHTML = '';
-    const sorted = [...voices].sort((a,b)=>{
-      let sa=0, sb=0;
-      const na = a.name.toLowerCase(), nb = b.name.toLowerCase();
-      if(na.includes('natural')||na.includes('online')) sa+=100;
-      if(nb.includes('natural')||nb.includes('online')) sb+=100;
-      if(na.includes('google')) sa+=60; if(nb.includes('google')) sb+=60;
-      if(na.includes('jenny')||na.includes('guy')||na.includes('ryan')) sa+=50;
-      if(nb.includes('jenny')||nb.includes('guy')||nb.includes('ryan')) sb+=50;
-      if(a.lang.startsWith('en-')) sa+=20; if(b.lang.startsWith('en-')) sb+=20;
-      return sb-sa;
-    });
+    const rank = (v) => {
+      const n = v.name.toLowerCase(); let s = 0;
+      if (n.includes('natural') || n.includes('online')) s += 100;
+      if (n.includes('google')) s += 60;
+      if (n.includes('jenny') || n.includes('ryan') || n.includes('samantha') || n.includes('guy')) s += 50;
+      if (v.lang.toLowerCase().startsWith('en')) s += 20;
+      return s;
+    };
+    const sorted = [...voices].sort((a, b) => rank(b) - rank(a))
+      .filter(v => v.lang.startsWith('en') || v.lang.startsWith('id'));
     sorted.forEach(v => {
-      if(v.lang.startsWith('en')||v.lang.startsWith('id')){
-        const opt=document.createElement('option'); opt.value=v.name; opt.textContent=`${v.name} (${v.lang})`;
-        voiceSelect.appendChild(opt);
-      }
+      const opt = document.createElement('option');
+      opt.value = v.name; opt.textContent = v.name + ' (' + v.lang + ')';
+      voiceSelect.appendChild(opt);
     });
-    if(voiceSelect.options.length>0){ voiceSelect.selectedIndex=0; chosenVoice=sorted.find(x=>x.name===voiceSelect.value); }
+    if (sorted.length) {
+      const saved = localStorage.getItem('luna_voice');
+      const pick = saved && sorted.find(v => v.name === saved) ? saved : sorted[0].name;
+      voiceSelect.value = pick;
+      chosenVoice = sorted.find(v => v.name === pick);
+    }
   }
-  if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); }
-  voiceSelect.addEventListener('change', ()=>{ chosenVoice=speechSynthesis.getVoices().find(v=>v.name===voiceSelect.value); });
+  if ('speechSynthesis' in window) { speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); }
+  voiceSelect.addEventListener('change', () => {
+    chosenVoice = speechSynthesis.getVoices().find(v => v.name === voiceSelect.value) || null;
+    localStorage.setItem('luna_voice', voiceSelect.value);
+  });
 
   function setAvatarStatus(state, lbl) {
-    document.getElementById('statusDot').className = 'status-dot'+(state==='speaking'?' speaking':(state==='listening'?' listening':''));
-    document.getElementById('statusLabel').textContent = lbl;
+    $('statusDot').className = 'status-dot' + (state === 'speaking' ? ' speaking' : (state === 'listening' ? ' listening' : ''));
+    $('statusLabel').textContent = lbl;
+  }
+
+  function cleanForSpeech(text) {
+    return text
+      .replace(/[*_#`~>]/g, '')
+      .replace(/<[^>]*>/g, '')
+      .replace(/\([^")]*"\)/g, '')
+      .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   function speakText(text) {
-    if(!('speechSynthesis' in window)) return;
+    const clean = cleanForSpeech(text);
+    if (!('speechSynthesis' in window) || !clean) { afterSpeak(); return; }
     window.speechSynthesis.cancel();
-    const clean = text.replace(/[*_#`~]/g,'').replace(/<[^>]*>/g,'').trim();
     const u = new SpeechSynthesisUtterance(clean);
-    if(chosenVoice) u.voice=chosenVoice; else u.lang=/[a-zA-Z]{5,}/.test(clean)?'en-US':'id-ID';
-    u.rate=0.98; u.pitch=1.02;
-    u.onstart=()=>{ isAiSpeaking=true; setAvatarStatus('speaking','Luna ngomong...'); };
-    u.onend=()=>{ isAiSpeaking=false; setAvatarStatus('idle','Luna siap ngobrol'); };
-    u.onerror=()=>{ isAiSpeaking=false; setAvatarStatus('idle','Luna siap ngobrol'); };
+    if (chosenVoice) u.voice = chosenVoice;
+    else u.lang = /[a-zA-Z]{5,}/.test(clean) ? 'en-US' : 'id-ID';
+    u.rate = 1.0; u.pitch = 1.05;
+    u.onstart = () => { isAiSpeaking = true; setAvatarStatus('speaking', 'Luna bicara...'); setStatusLine('Luna sedang menjawab...'); };
+    u.onend = afterSpeak;
+    u.onerror = afterSpeak;
     window.speechSynthesis.speak(u);
   }
 
-  // ================= CHAT & MIC =================
+  function afterSpeak() {
+    isAiSpeaking = false;
+    lastSpeechEnd = Date.now();
+    if (callMode) openMic(420);
+    else { setAvatarStatus('idle', 'Luna siap ngobrol'); }
+  }
+
+  // ================= CHAT / GEMINI =================
   const API_KEY = ['AQ.Ab8RN6KOIxf','mckfNAEkMz9A49','TNFz_REwJdtiPRLEq','jLAXA9DQ'].join('');
-  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${API_KEY}`;
-  
+  const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=' + API_KEY;
   const SS_KEY = 'chat_luna_history';
   let history = JSON.parse(sessionStorage.getItem(SS_KEY) || '[]');
+  const chatBox = $('chatBox');
 
   const getPrompt = () => ({
-    role: "user", parts: [{ text: `Kamu adalah Luna, partner ngobrol bahasa Inggris yang santai, fun, natural. Aturanmu:
-1. Bicara sangat luwes kayak ngobrol lisan dengan teman (casual, friendly).
-2. Kalau user nanya bhs Indonesia, jelaskan bhs Indonesia dengan asyik + contoh.
-3. ${document.getElementById('replyEnglishToggle').checked ? 'Jawab sepenuhnya pakai Bahasa Inggris untuk melatih listening user.' : 'Sesuaikan bahasamu dengan bahasa input.'}
-4. JANGAN pakai markdown berlebihan seperti tebal, miring, dsb. Jawab ringkas agar bagus waktu dibacakan text-to-speech.` }]
+    role: 'user', parts: [{ text: 'Kamu adalah Luna, partner ngobrol bahasa Inggris yang santai dan fun.\n' +
+      'PANGGILAN SUARA REAL-TIME: jawabanmu akan DIBACAKAN oleh text-to-speech, jadi:\n' +
+      '1. Jawab SANGAT PENDEK dan natural seperti ngobrol lisan: 1-3 kalimat saja, maksimal ~35 kata.\n' +
+      '2. DILARANG memakai markdown, tanda bintang, tanda pagar, numberedList, emoji, atau kurung. Tulis apa adanya seperti orang bicara.\n' +
+      '3. Jangan ulang pertanyaan user. Langsung respons + satu pertanyaan balik yang memantik obrolan.\n' +
+      '4. ' + ($('replyEnglishToggle').checked ? 'Selalu jawab full Bahasa Inggris sederhana agar listening user terlatih.' : 'Balas dalam bahasa yang sama dengan bahasa user (boleh campur sedikit frasa Inggris untuk belajar).') + '\n' +
+      '5. Kalau user keliru grammar, koreksi singkat 1 kalimat lalu lanjut ngobrol.' }] }
   });
 
-  const chatBox=document.getElementById('chatBox');
-  
-  // Render initial history
-  function renderHistory() {
-    if(history.length > 0) {
-      chatBox.innerHTML = '';
-      history.forEach(m => appendMsg(m.role==='model'?'ai':'user', m.parts[0].text, true));
-    }
-  }
-
-  function appendMsg(role, text, isRestore = false) {
-    const d=document.createElement('div'); d.className='msg '+(role==='user'?'user-msg':'ai-msg');
-    d.innerHTML=text.replace(/\n/g,'<br>');
-    if(role==='ai'){
-      const a=document.createElement('div'); a.className='ai-msg-actions';
-      a.innerHTML=`<button class="btn-msg-speak">🔊 Dengar</button>`;
-      a.querySelector('button').onclick = ()=>speakText(text);
+  function appendMsg(role, text) {
+    const d = document.createElement('div');
+    d.className = 'msg ' + (role === 'user' ? 'user-msg' : 'ai-msg');
+    d.innerHTML = text.replace(/\n/g, '<br>');
+    if (role === 'ai') {
+      const a = document.createElement('div'); a.className = 'ai-msg-actions';
+      a.innerHTML = '<button class="btn-msg-speak">Dengar lagi</button>';
+      a.querySelector('button').onclick = () => speakText(text);
       d.appendChild(a);
     }
-    chatBox.appendChild(d); chatBox.scrollTop=chatBox.scrollHeight;
+    chatBox.appendChild(d); chatBox.scrollTop = chatBox.scrollHeight;
   }
-  renderHistory();
 
-  async function sendToAi(txt, direct=false) {
-    if(!txt) return;
-    appendMsg('user', txt); history.push({role:"user", parts:[{text:txt}]});
+  function bootIntro() {
+    if (history.length) { history.forEach(m => appendMsg(m.role === 'user' ? 'user' : 'ai', m.parts[0].text)); return; }
+    appendMsg('ai', 'Hai, aku Luna! Aku bakal jawab pakai suara ya. Coba cerita atau tanya apa aja dalam bahasa Inggris.');
+  }
+  bootIntro();
+
+  function setStatusLine(t) { $('liveStatusText').textContent = t; }
+
+  async function sendToAi(txt, speakBack) {
+    if (!txt) { if (callMode) openMic(300); return; }
+    appendMsg('user', txt);
+    history.push({ role: 'user', parts: [{ text: txt }] });
     sessionStorage.setItem(SS_KEY, JSON.stringify(history));
-    const l=document.createElement('div'); l.className='msg ai-msg'; l.innerHTML='<i>Luna memikirkan jawaban...</i>';
-    chatBox.appendChild(l); chatBox.scrollTop=chatBox.scrollHeight;
+
+    setAvatarStatus('idle', 'Luna berpikir...');
+    setStatusLine('Luna berpikir...');
+
     try {
       const res = await fetch(API_URL, {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({contents:history, systemInstruction:getPrompt()})
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: history, systemInstruction: getPrompt() })
       });
-      chatBox.removeChild(l);
-      if(!res.ok) throw new Error("HTTP "+res.status);
-      const rep = (await res.json()).candidates[0].content.parts[0].text;
-      history.push({role:"model", parts:[{text:rep}]});
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      const rep = json.candidates?.[0]?.content?.parts?.[0]?.text || 'Maaf, aku tidak menangkap jawaban.';
+      history.push({ role: 'model', parts: [{ text: rep }] });
       sessionStorage.setItem(SS_KEY, JSON.stringify(history));
       appendMsg('ai', rep);
-      if(direct || document.getElementById('autoVoiceToggle').checked) speakText(rep);
-    } catch(err) {
-      if(chatBox.contains(l)) chatBox.removeChild(l);
-      appendMsg('ai', "Maaf, error: "+err.message); history.pop();
+      if (speakBack || callMode || $('replyEnglishToggle').checked === null) speakText(rep);
+      else if (!$('btnCallMode').classList.contains('in-call')) speakText(rep);
+    } catch (err) {
+      appendMsg('ai', 'Aduh, koneksi ke Luna terputus: ' + err.message);
+      history.pop();
+      if (callMode) openMic(900);
     }
   }
 
+  // ================= MIC: HANDS-FREE LOOP =================
   const sr = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = sr ? new sr() : null;
-  let liveOn = false;
-  
-  if(rec) {
-    rec.lang='en-US'; rec.continuous=false; rec.interimResults=false;
-    rec.onstart = ()=>{
-      liveOn=true; isAiListening=true;
-      document.getElementById('btnLiveVoice').classList.add('active');
-      document.getElementById('liveBtnText').textContent='Mendengar...';
-      document.getElementById('voiceLiveBanner').classList.add('on');
-      document.getElementById('liveStatusText').textContent='Mendengarkan... Ngomong aja!';
+  let rec = null;
+
+  function buildRec() {
+    const r = new sr();
+    r.lang = $('micLangSelect').value || 'en-US';
+    r.continuous = false;      // half-duplex: mic closed while Luna speaks (no echo)
+    r.interimResults = true;
+    r.maxAlternatives = 1;
+
+    let finalTxt = '';
+    r.onstart = () => {
+      liveOn = true; finalTxt = '';
+      $('voiceLiveBanner').classList.add('on');
+      setStatusLine('Mendengarkan... silakan bicara');
       setAvatarStatus('listening', 'Mendengarkanmu...');
-      if(isAiSpeaking){ window.speechSynthesis.cancel(); isAiSpeaking=false; }
     };
-    rec.onresult = (e)=>{
-      const t = e.results[0][0].transcript;
-      document.getElementById('liveStatusText').textContent = `Kamu: "${t}"`;
-      setTimeout(()=>sendToAi(t, true), 300);
+    r.onresult = (e) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i];
+        if (t.isFinal) finalTxt += t[0].transcript; else interim += t[0].transcript;
+      }
+      const shown = (finalTxt || interim).trim();
+      if (shown) setStatusLine('Kamu: "' + shown + '"');
     };
-    rec.onerror = ()=>stopLive();
-    rec.onend = ()=>stopLive();
-  }
-  function stopLive() {
-    liveOn=false; isAiListening=false;
-    document.getElementById('btnLiveVoice').classList.remove('active');
-    document.getElementById('liveBtnText').textContent='Bicara';
-    setTimeout(()=>{ if(!isAiSpeaking) document.getElementById('voiceLiveBanner').classList.remove('on'); }, 1500);
-    setAvatarStatus('idle','Luna siap ngobrol');
+    r.onerror = (e) => {
+      liveOn = false;
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+        stopCall();
+        appendMsg('ai', 'Izin mikrofon ditolak browser. Izinkan akses mic lalu coba lagi ya.');
+      } else if (callMode) {
+        openMic(700);
+      } else {
+        $('voiceLiveBanner').classList.remove('on');
+      }
+    };
+    r.onend = () => {
+      liveOn = false;
+      const t = finalTxt.trim();
+      if (t) { sendToAi(t, true); }               // Luna replies out loud, then re-opens mic
+      else if (callMode) { openMic(350); }        // heard nothing -> keep listening
+      else { $('voiceLiveBanner').classList.remove('on'); setAvatarStatus('idle', 'Luna siap ngobrol'); }
+    };
+    return r;
   }
 
-  document.getElementById('btnLiveVoice').onclick = ()=>{
-    if(!rec){ alert('Mic ga didukung (coba localhost Chrome)'); return; }
-    if(liveOn) rec.stop(); else rec.start();
+  function openMic(delay) {
+    if (!sr) return;
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => {
+      if (!callMode || liveOn || isAiSpeaking) return;
+      if (Date.now() - lastSpeechEnd < 300) return;
+      rec = buildRec();
+      try { rec.start(); } catch (e) { /* start called twice */ }
+    }, delay || 0);
+  }
+
+  function startCall() {
+    if (!sr) { alert('Browser ini belum mendukung Web Speech API. Pakai Chrome atau Edge ya.'); return; }
+    callMode = true;
+    const b = $('btnCallMode');
+    b.classList.add('in-call');
+    b.innerHTML = '<span>Akhiri Panggilan Suara</span>';
+    $('modeHint').textContent = 'Panggilan aktif: bicara saja, Luna menjawab bersuara lalu mendengarkan lagi otomatis.';
+    openMic(250);
+  }
+
+  function stopCall() {
+    callMode = false;
+    clearTimeout(resumeTimer);
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    isAiSpeaking = false;
+    if (rec) { try { rec.abort(); } catch (e) {} }
+    liveOn = false;
+    const b = $('btnCallMode');
+    b.classList.remove('in-call');
+    b.innerHTML = '<span>Mulai Panggilan Suara (Hands-Free)</span>';
+    $('voiceLiveBanner').classList.remove('on');
+    $('modeHint').textContent = 'Mode Hands-Free: sekali klik, percakapan berlanjut otomatis sampai kamu akhiri panggilan.';
+    setAvatarStatus('idle', 'Luna siap ngobrol');
+  }
+
+  $('btnCallMode').onclick = () => { callMode ? stopCall() : startCall(); };
+
+  $('btnLiveVoice').onclick = () => {
+    if (!sr) { alert('Browser ini belum mendukung Web Speech API.'); return; }
+    if (callMode) { stopCall(); return; }
+    rec = buildRec();
+    $('liveBtnText').textContent = 'Mendengar...';
+    try { rec.start(); } catch (e) {}
+    setTimeout(() => { if (!liveOn) $('liveBtnText').textContent = 'Bicara'; }, 200);
   };
-  document.getElementById('btnSend').onclick = ()=>{
-    const t = document.getElementById('chatInput').value.trim();
-    if(t){ document.getElementById('chatInput').value=''; sendToAi(t, false); }
+  // restore button label when a one-shot session finishes
+  setInterval(() => { if (!liveOn && !isAiSpeaking) $('liveBtnText').textContent = 'Bicara'; }, 800);
+
+  $('btnSend').onclick = () => {
+    const t = $('chatInput').value.trim();
+    if (t) { $('chatInput').value = ''; sendToAi(t, false); }
   };
+  $('chatInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('btnSend').click(); }
+  });
+
+  document.addEventListener('visibilitychange', () => { if (document.hidden && callMode) stopCall(); });
+
   initAvatar3D();
 </script>
 </body>
 </html>
-
-
-
-
-
